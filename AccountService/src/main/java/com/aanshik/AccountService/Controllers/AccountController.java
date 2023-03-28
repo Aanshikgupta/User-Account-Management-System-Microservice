@@ -2,6 +2,7 @@ package com.aanshik.AccountService.Controllers;
 
 import com.aanshik.AccountService.Payloads.AccountDto;
 import com.aanshik.AccountService.Services.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AccountController {
     AccountService accountService;
 
     @PostMapping
-    public ResponseEntity<Integer> createAccount(@RequestBody AccountDto accountDto) {
+    public ResponseEntity<Integer> createAccount(@RequestBody @Valid AccountDto accountDto) {
         return new ResponseEntity<>(accountService.createAccount(accountDto), HttpStatus.CREATED);
     }
 
@@ -32,7 +33,7 @@ public class AccountController {
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<List<AccountDto>> getAllAccounts(@PathVariable String userId) {
+    public ResponseEntity<List<AccountDto>> getAllAccountsByUserId(@PathVariable String userId) {
         return new ResponseEntity<>(accountService.getAccountByUserId(userId), HttpStatus.OK);
     }
 
@@ -52,13 +53,13 @@ public class AccountController {
     }
 
     @PutMapping("/deposit/{accountId}")
-    public ResponseEntity<Integer> addMoney(@PathVariable("accountId") String accountId, @RequestBody Long amount) {
-        return new ResponseEntity<>(accountService.depositBalance(accountId, amount), HttpStatus.OK);
+    public ResponseEntity<Integer> addMoney(@PathVariable("accountId") String accountId, @RequestBody String amount) {
+        return new ResponseEntity<>(accountService.depositBalance(accountId, Long.parseLong(amount)), HttpStatus.OK);
     }
 
     @PutMapping("/withdraw/{accountId}")
-    public ResponseEntity<Integer> withdrawMoney(@PathVariable("accountId") String accountId, @RequestBody Long amount) {
-        return new ResponseEntity<>(accountService.withdrawBalance(accountId, amount), HttpStatus.OK);
+    public ResponseEntity<Integer> withdrawMoney(@PathVariable("accountId") String accountId, @RequestBody String amount) {
+        return new ResponseEntity<>(accountService.withdrawBalance(accountId, Long.parseLong(amount)), HttpStatus.OK);
     }
 
 }

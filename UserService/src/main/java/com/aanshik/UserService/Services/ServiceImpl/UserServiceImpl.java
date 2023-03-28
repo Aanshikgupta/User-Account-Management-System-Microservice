@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,15 +34,19 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
-    @CacheEvict(value = "user-dto", allEntries = true)
     public Integer createUser(UserDto userDto) {
         User userToBeSaved = this.modelMapper.map(userDto, User.class);
         String userId = UUID.randomUUID().toString();
 
         //user will have automatic account creation
-        automaticAccountCreationForUser(userId);
         userToBeSaved.setUserId(userId);
-        return userRepo.createUser(userToBeSaved);
+        Integer aff = userRepo.createUser(userToBeSaved);
+
+        if (aff >= 1) {
+            automaticAccountCreationForUser(userId);
+        }
+
+        return aff;
     }
 
     private void automaticAccountCreationForUser(String userId) {
@@ -50,7 +55,7 @@ public class UserServiceImpl implements UserServices {
     }
 
     @Override
-    @Cacheable("user-dto")
+    @Cacheable(value = "user-dto", key = "#userId")
     public UserDto getUserById(String userId) {
         User userRetrieved = userRepo.getUserById(userId);
         System.out.println("Called");
@@ -72,7 +77,7 @@ public class UserServiceImpl implements UserServices {
     }
 
     @Override
-    @Cacheable("user-dto-list")
+    @Cacheable(value = "usersList-dto")
     public List<UserDto> getAllUsers() {
         System.out.println("GEt all users called");
         try {
@@ -89,7 +94,7 @@ public class UserServiceImpl implements UserServices {
     }
 
     @Override
-    @CacheEvict(value = "user-dto", allEntries = true)
+    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),})
     public Integer updateUser(String userId, UserDto userDto) {
         User userPresent = userRepo.getUserById(userId);
         if (userPresent == null) {
@@ -100,12 +105,11 @@ public class UserServiceImpl implements UserServices {
     }
 
     @Override
-    @CacheEvict(value = "user-dto", allEntries = true)
+    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true), @CacheEvict(value = "user-dto", allEntries = true),})
     public Integer deleteUser(String userId) {
         User userPresent = userRepo.getUserById(userId);
 
         //deleting user would delete all his/her accounts
-        deleteAllAccountsForUser(userPresent.getUserId());
 
         return userRepo.deleteUser(userId);
     }
@@ -113,4 +117,6 @@ public class UserServiceImpl implements UserServices {
     private void deleteAllAccountsForUser(String userId) {
         restTemplate.delete(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId);
     }
+
+
 }

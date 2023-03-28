@@ -4,12 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 @Getter
 @Setter
-public class ApiError {
+public class ApiError implements Serializable {
 
     private HttpStatus status;
     private String message;

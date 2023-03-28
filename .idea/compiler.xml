@@ -19,7 +19,7 @@
       <module name="ApiGateway" target="1.8" />
       <module name="ConfigServer" target="1.8" />
       <module name="ServiceRegistry" target="1.8" />
-      <module name="UserService" target="9" />
+      <module name="UserService" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

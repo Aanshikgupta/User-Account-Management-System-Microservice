@@ -1,8 +1,6 @@
 package com.aanshik.UserService.Payloads;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +20,8 @@ public class UserDto implements Serializable {
     @NotBlank(message = "Username cannot be blank")
     @NotEmpty(message = "Username cannot be empty")
     private String userName;
+
+    @Size(min = 10, max = 10,message = "Invalid Phone Number")
     private String userMobile;
     private Date userDob;
 
