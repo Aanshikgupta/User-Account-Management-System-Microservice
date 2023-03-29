@@ -17,11 +17,10 @@ import java.util.List;
 public class UserDto implements Serializable {
     private String userId;
     @NotNull(message = "Username cannot be null")
-    @NotBlank(message = "Username cannot be blank")
     @NotEmpty(message = "Username cannot be empty")
     private String userName;
 
-    @Size(min = 10, max = 10,message = "Invalid Phone Number")
+    @Size(min = 10, max = 10, message = "Invalid Phone Number")
     private String userMobile;
     private Date userDob;
 

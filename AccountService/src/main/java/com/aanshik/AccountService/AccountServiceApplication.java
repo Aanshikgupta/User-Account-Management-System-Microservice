@@ -19,18 +19,5 @@ public class AccountServiceApplication {
         SpringApplication.run(AccountServiceApplication.class, args);
     }
 
-    @Autowired
-    RestTemplateBuilder restTemplateBuilder;
-
-    @Bean
-    @LoadBalanced
-    public RestTemplate restTemplate() {
-//        return restTemplateBuilder
-//                .errorHandler(new RestTemplateResponseErrorHandler())
-//                .build();
-
-        return new RestTemplate();
-    }
-
 
 }

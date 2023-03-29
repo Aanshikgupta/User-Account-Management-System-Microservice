@@ -12,9 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Account {
     private String accountId;
-
     private String userId;
-
     private Long balance;
 
 }

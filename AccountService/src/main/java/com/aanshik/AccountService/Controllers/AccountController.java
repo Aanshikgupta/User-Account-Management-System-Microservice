@@ -17,8 +17,8 @@ public class AccountController {
     @Autowired
     AccountService accountService;
 
-    @PostMapping
-    public ResponseEntity<Integer> createAccount(@RequestBody @Valid AccountDto accountDto) {
+    @PostMapping("")
+    public ResponseEntity<AccountDto> createAccount(@RequestBody @Valid AccountDto accountDto) {
         return new ResponseEntity<>(accountService.createAccount(accountDto), HttpStatus.CREATED);
     }
 
@@ -38,27 +38,27 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}")
-    public ResponseEntity<Integer> updateAccount(@PathVariable String accountId, @RequestBody AccountDto accountDto) {
+    public ResponseEntity<AccountDto> updateAccount(@PathVariable String accountId, @RequestBody AccountDto accountDto) {
         return new ResponseEntity<>(accountService.updateAccount(accountId, accountDto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{accountId}")
-    public ResponseEntity<Integer> deleteAccount(@PathVariable String accountId) {
+    public ResponseEntity<Boolean> deleteAccount(@PathVariable String accountId) {
         return new ResponseEntity<>(accountService.deleteAccountByAccountId(accountId), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Integer> deleteAccountByUserId(@PathVariable String userId) {
+    public ResponseEntity<Boolean> deleteAccountByUserId(@PathVariable String userId) {
         return new ResponseEntity<>(accountService.deleteAccountByUserId(userId), HttpStatus.OK);
     }
 
     @PutMapping("/deposit/{accountId}")
-    public ResponseEntity<Integer> addMoney(@PathVariable("accountId") String accountId, @RequestBody String amount) {
+    public ResponseEntity<AccountDto> addMoney(@PathVariable("accountId") String accountId, @RequestBody String amount) {
         return new ResponseEntity<>(accountService.depositBalance(accountId, Long.parseLong(amount)), HttpStatus.OK);
     }
 
     @PutMapping("/withdraw/{accountId}")
-    public ResponseEntity<Integer> withdrawMoney(@PathVariable("accountId") String accountId, @RequestBody String amount) {
+    public ResponseEntity<AccountDto> withdrawMoney(@PathVariable("accountId") String accountId, @RequestBody String amount) {
         return new ResponseEntity<>(accountService.withdrawBalance(accountId, Long.parseLong(amount)), HttpStatus.OK);
     }
 

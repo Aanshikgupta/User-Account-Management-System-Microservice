@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -34,25 +35,23 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
-    public Integer createUser(UserDto userDto) {
+    public UserDto createUser(UserDto userDto) {
         User userToBeSaved = this.modelMapper.map(userDto, User.class);
         String userId = UUID.randomUUID().toString();
-
         //user will have automatic account creation
         userToBeSaved.setUserId(userId);
         Integer aff = userRepo.createUser(userToBeSaved);
 
         if (aff >= 1) {
-            automaticAccountCreationForUser(userId);
+            long initBalance = 1000L;
+            createAccountForUser(userId, initBalance);
+        } else {
+            return null;
         }
 
-        return aff;
+        return this.modelMapper.map(userToBeSaved, UserDto.class);
     }
 
-    private void automaticAccountCreationForUser(String userId) {
-        AccountDto accountDto = new AccountDto(userId, 1000L);
-        restTemplate.postForEntity(Constants.ACCOUNT_SERVICE_BASE_URL, accountDto, Integer.class).getBody();
-    }
 
     @Override
     @Cacheable(value = "user-dto", key = "#userId")
@@ -69,12 +68,6 @@ public class UserServiceImpl implements UserServices {
         return userRetrievedDto;
     }
 
-
-    public List<AccountDto> getAllAccounts(String userId) {
-        AccountDto[] accountDtos = restTemplate.getForObject(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId, AccountDto[].class);
-        List<AccountDto> accounts = Arrays.asList(accountDtos);
-        return accounts;
-    }
 
     @Override
     @Cacheable(value = "usersList-dto")
@@ -93,29 +86,80 @@ public class UserServiceImpl implements UserServices {
 
     }
 
+
     @Override
-    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),})
-    public Integer updateUser(String userId, UserDto userDto) {
+    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),},
+            put = {@CachePut(value = "user-dto", key = "#userId")})
+    public UserDto updateUser(String userId, UserDto userDto) {
         User userPresent = userRepo.getUserById(userId);
         if (userPresent == null) {
             throw new ResourceNotFoundException("User", userId);
         }
         User userUpdate = this.modelMapper.map(userDto, User.class);
-        return userRepo.updateUser(userId, userUpdate);
+        int aff = userRepo.updateUser(userId, userUpdate);
+
+        UserDto updatedDto = this.modelMapper.map(userUpdate, UserDto.class);
+        updatedDto.setUserId(userId);
+
+        return updatedDto;
     }
 
+
     @Override
-    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true), @CacheEvict(value = "user-dto", allEntries = true),})
-    public Integer deleteUser(String userId) {
+    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+            @CacheEvict(value = "user-dto", allEntries = true),})
+    public boolean deleteUser(String userId) {
         User userPresent = userRepo.getUserById(userId);
 
         //deleting user would delete all his/her accounts
+        //currently handled by Foreign Key Relationship
 
-        return userRepo.deleteUser(userId);
+        return userRepo.deleteUser(userId) >= 1;
     }
 
+
+    @Override
+    public AccountDto createAccount(String userId, AccountDto accountDto) {
+        return createAccountForUser(userId, accountDto.getBalance());
+    }
+
+
+    //delete all accounts of the user if the user is deleted.
     private void deleteAllAccountsForUser(String userId) {
+        userExistsOrNot(userId);
+
         restTemplate.delete(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId);
+    }
+
+
+    //safe check for user presence
+    private void userExistsOrNot(String userId) {
+        UserDto userDto = getUserById(userId);
+        if (userDto == null) {
+            throw new ResourceNotFoundException("User", userId);
+        }
+    }
+
+
+    //TODO:HERE
+    //create an account for a user when user is created
+    private AccountDto createAccountForUser(String userId, long initBalance) {
+        try {
+            AccountDto accountDto = new AccountDto(userId, initBalance);
+            accountDto = restTemplate.postForEntity(Constants.ACCOUNT_SERVICE_BASE_URL, accountDto, AccountDto.class).getBody();
+            return accountDto;
+        } catch (HttpClientErrorException exception) {
+            throw new ResourceNotFoundException("User", userId);
+        }
+    }
+
+
+    //return all the accounts by userId
+    public List<AccountDto> getAllAccounts(String userId) {
+        userExistsOrNot(userId);
+        AccountDto[] accountDtos = restTemplate.getForObject(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId, AccountDto[].class);
+        List<AccountDto> accounts = Arrays.asList(accountDtos);
+        return accounts;
     }
 
 

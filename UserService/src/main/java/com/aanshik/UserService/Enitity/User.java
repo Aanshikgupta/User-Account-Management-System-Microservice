@@ -15,9 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-
     private String userId;
-
     private String userName;
     private String userMobile;
     private Date userDob;

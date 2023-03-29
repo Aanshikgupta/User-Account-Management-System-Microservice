@@ -34,7 +34,7 @@ public class AccountServiceImpl implements AccountService {
     RestTemplate restTemplate;
 
     @Override
-    public Integer createAccount(AccountDto accountDto) {
+    public AccountDto createAccount(AccountDto accountDto) {
 
         Account accountToBeSaved = this.modelMapper.map(accountDto, Account.class);
         String accountId = UUID.randomUUID().toString();
@@ -42,7 +42,9 @@ public class AccountServiceImpl implements AccountService {
 
         //set user details to this account
 
-        return accountRepo.createAccount(accountToBeSaved);
+        int aff = accountRepo.createAccount(accountToBeSaved);
+
+        return this.modelMapper.map(accountToBeSaved, AccountDto.class);
     }
 
     @Override
@@ -69,9 +71,12 @@ public class AccountServiceImpl implements AccountService {
 
         AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
 
-        UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL + "/" + accountDto.getUserId(), UserDto.class).getBody();
-
-        return userDto;
+        try {
+            UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL + "/" + accountDto.getUserId(), UserDto.class).getBody();
+            return userDto;
+        } catch (HttpClientErrorException exception) {
+            throw new ResourceNotFoundException("User", accountDto.getUserId());
+        }
     }
 
     @Override
@@ -86,9 +91,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     //TODO: Handle User not Found in User Service with Appropriate Message
-    private void userPresentOrNot(String userId) {
+    private UserDto userPresentOrNot(String userId) {
         try {
-            Object userDto = restTemplate.getForObject("http://USER-SERVICE/users/" + userId, Object.class);
+            UserDto userDto = restTemplate.getForObject("http://USER-SERVICE/users/" + userId, UserDto.class);
+            return userDto;
         } catch (HttpClientErrorException exception) {
             System.out.println(exception);
             throw new ResourceNotFoundException("User", userId);
@@ -99,7 +105,6 @@ public class AccountServiceImpl implements AccountService {
     @Cacheable(value = "accountsList-dto")
     public List<AccountDto> getAllAccounts() {
         List<Account> accounts = accountRepo.getAllAccounts();
-
         return getAccountDtos(accounts);
     }
 
@@ -119,32 +124,49 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-user-list-dto", allEntries = true),})
-    public Integer updateAccount(String accountId, AccountDto accountDto) {
-        Account account = accountRepo.getAccountById(accountId);
-        if (account == null) {
-            throw new ResourceNotFoundException("Account", accountId);
-        }
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),},
+            put = {@CachePut(value = "account-dto", key = "#accountId")})
+    public AccountDto updateAccount(String accountId, AccountDto accountDto) {
+        Account account = accountPresentOrNot(accountId);
+
+
         Account dto = this.modelMapper.map(accountDto, Account.class);
         account.setBalance(dto.getBalance());
-        return accountRepo.updateAccount(accountId, account);
+        int aff = accountRepo.updateAccount(accountId, account);
+
+        return getAccountById(accountId);
     }
 
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-user-list-dto", allEntries = true),})
-    public Integer deleteAccountByAccountId(String accountId) {
-        return accountRepo.deleteAccountByAccountId(accountId);
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),
+            @CacheEvict(value = "account-dto", allEntries = true),})
+    public Boolean deleteAccountByAccountId(String accountId) {
+        //extra check
+        accountPresentOrNot(accountId);
+        return accountRepo.deleteAccountByAccountId(accountId) >= 1;
+    }
+
+    public Account accountPresentOrNot(String accountId) {
+        Account account = accountRepo.getAccountById(accountId);
+        if (account == null) {
+            throw new ResourceNotFoundException("Account", accountId);
+        }
+        return account;
     }
 
     @Override
-    public Integer deleteAccountByUserId(String userId) {
+    @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
+            @CacheEvict(value = "account-user-dto", allEntries = true),
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),
+            @CacheEvict(value = "account-dto", allEntries = true),})
+    public Boolean deleteAccountByUserId(String userId) {
         Integer delOrNot = accountRepo.deleteAccountByUserId(userId);
         if (delOrNot == 0) {
             throw new ResourceNotFoundException("User", userId);
         }
-        return delOrNot;
+        return true;
     }
 
 
@@ -152,8 +174,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-user-list-dto", allEntries = true),})
-    public Integer depositBalance(String accountId, long balance) {
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),},
+            put = {@CachePut(value = "account-dto", key = "#accountId")})
+    public AccountDto depositBalance(String accountId, long balance) {
         AccountDto accountDto = getAccountById(accountId);
         long oldBalance = accountDto.getBalance();
         long newBalance = oldBalance + balance;
@@ -167,8 +190,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-user-list-dto", allEntries = true),})
-    public Integer withdrawBalance(String accountId, long balance) {
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),},
+            put = {@CachePut(value = "account-dto", key = "#accountId")})
+    public AccountDto withdrawBalance(String accountId, long balance) {
 
         AccountDto accountDto = getAccountById(accountId);
         long oldBalance = accountDto.getBalance();

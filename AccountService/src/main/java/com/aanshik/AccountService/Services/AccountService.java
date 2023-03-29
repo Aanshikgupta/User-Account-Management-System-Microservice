@@ -1,13 +1,14 @@
 package com.aanshik.AccountService.Services;
 
 import com.aanshik.AccountService.Payloads.AccountDto;
+import com.aanshik.AccountService.Payloads.UserDto;
 
 import java.util.List;
 
 public interface AccountService {
 
     //create
-    public Integer createAccount(AccountDto accountDto);
+    public AccountDto createAccount(AccountDto accountDto);
 
     //get Account by Id
     public AccountDto getAccountById(String accountId);
@@ -19,17 +20,17 @@ public interface AccountService {
     public List<AccountDto> getAllAccounts();
 
     //update Account
-    public Integer updateAccount(String accountId, AccountDto accountDto);
+    public AccountDto updateAccount(String accountId, AccountDto accountDto);
 
     //delete Account
-    public Integer deleteAccountByAccountId(String accountId);
+    public Boolean deleteAccountByAccountId(String accountId);
 
     //delete account by user id
-    public Integer deleteAccountByUserId(String userId);
+    public Boolean deleteAccountByUserId(String userId);
 
     //deposit balance
-    public Integer depositBalance(String accountId, long balance);
+    public AccountDto depositBalance(String accountId, long balance);
 
     //withdraw balance
-    public Integer withdrawBalance(String accountId, long balance);
+    public AccountDto withdrawBalance(String accountId, long balance);
 }
