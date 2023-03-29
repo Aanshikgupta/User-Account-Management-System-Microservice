@@ -58,6 +58,7 @@ public class AccountServiceImpl implements AccountService {
         return accountDtoSaved;
     }
 
+
     @Override
     @Cacheable(value = "account-dto", key = "#accountId")
     public AccountDto getAccountById(String accountId) {
@@ -68,12 +69,11 @@ public class AccountServiceImpl implements AccountService {
         return accountDto;
     }
 
+
     @Cacheable(value = "account-user-dto")
     public UserDto getUserByAccountId(String accountId) {
 
-
         AccountDto accountDto = getAccountDtoById(accountId);
-
 
         try {
             UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL + "/" + accountDto.getUserId(), UserDto.class).getBody();
@@ -81,9 +81,12 @@ public class AccountServiceImpl implements AccountService {
         } catch (HttpClientErrorException exception) {
             throw new ResourceNotFoundException("User", accountDto.getUserId());
         }
+
     }
 
+
     public AccountDto getAccountDtoById(String accountId) {
+
         Account account = accountRepo.getAccountById(accountId);
         if (account == null) {
             throw new ResourceNotFoundException("Account", accountId);
@@ -91,7 +94,9 @@ public class AccountServiceImpl implements AccountService {
 
         AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
         return accountDto;
+
     }
+
 
     @Override
     @Cacheable(value = "account-user-list-dto")
@@ -107,19 +112,24 @@ public class AccountServiceImpl implements AccountService {
 
 
     private UserDto userPresentOrNot(String userId) {
+
         try {
             UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL + "/" + userId, UserDto.class);
             return userDto;
         } catch (HttpClientErrorException exception) {
             throw new ResourceNotFoundException("User", userId);
         }
+
     }
+
 
     @Override
     @Cacheable(value = "accountsList-dto")
     public List<AccountDto> getAllAccounts() {
+
         List<Account> accounts = accountRepo.getAllAccounts();
         return getAccountDtos(accounts);
+
     }
 
 
@@ -133,7 +143,9 @@ public class AccountServiceImpl implements AccountService {
         })).collect(Collectors.toList());
 
         return accountDtoList;
+
     }
+
 
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
@@ -141,6 +153,7 @@ public class AccountServiceImpl implements AccountService {
             @CacheEvict(value = "account-user-list-dto", allEntries = true),},
             put = {@CachePut(value = "account-dto", key = "#accountId")})
     public AccountDto updateAccount(String accountId, AccountDto accountDto) {
+
         Account account = accountPresentOrNot(accountId);
 
 
@@ -149,7 +162,9 @@ public class AccountServiceImpl implements AccountService {
         int aff = accountRepo.updateAccount(accountId, account);
 
         return getAccountById(accountId);
+
     }
+
 
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
@@ -162,6 +177,7 @@ public class AccountServiceImpl implements AccountService {
         return accountRepo.deleteAccountByAccountId(accountId) >= 1;
     }
 
+
     public Account accountPresentOrNot(String accountId) {
         Account account = accountRepo.getAccountById(accountId);
         if (account == null) {
@@ -169,6 +185,7 @@ public class AccountServiceImpl implements AccountService {
         }
         return account;
     }
+
 
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
@@ -184,7 +201,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    //TODO:Not Working Yet
+
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
