@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping("/accounts/{userId}")
-    public ResponseEntity<AccountDto> createUser(@PathVariable String userId, @RequestBody AccountDto accountDto) {
+    public ResponseEntity<AccountDto> createAccount(@PathVariable String userId, @RequestBody AccountDto accountDto) {
         return new ResponseEntity<>(userService.createAccount(userId, accountDto), HttpStatus.CREATED);
     }
 

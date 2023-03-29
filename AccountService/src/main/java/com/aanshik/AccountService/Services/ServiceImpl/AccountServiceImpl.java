@@ -34,17 +34,26 @@ public class AccountServiceImpl implements AccountService {
     RestTemplate restTemplate;
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
+            @CacheEvict(value = "account-user-dto", allEntries = true),
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),
+            @CacheEvict(value = "account-dto", allEntries = true),})
     public AccountDto createAccount(AccountDto accountDto) {
 
         Account accountToBeSaved = this.modelMapper.map(accountDto, Account.class);
         String accountId = UUID.randomUUID().toString();
         accountToBeSaved.setAccountId(accountId);
 
-        //set user details to this account
-
         int aff = accountRepo.createAccount(accountToBeSaved);
 
-        return this.modelMapper.map(accountToBeSaved, AccountDto.class);
+        AccountDto accountDtoSaved = this.modelMapper.map(accountToBeSaved, AccountDto.class);
+
+        //get user details
+        UserDto userDto = getUserByAccount(accountId);
+        //set user details to this account
+        accountDtoSaved.setUserDetails(userDto);
+
+        return accountDtoSaved;
     }
 
     @Override

@@ -35,6 +35,8 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+            @CacheEvict(value = "user-dto", allEntries = true),})
     public UserDto createUser(UserDto userDto) {
         User userToBeSaved = this.modelMapper.map(userDto, User.class);
         String userId = UUID.randomUUID().toString();
@@ -113,6 +115,7 @@ public class UserServiceImpl implements UserServices {
 
         //deleting user would delete all his/her accounts
         //currently handled by Foreign Key Relationship
+        deleteAllAccountsForUser(userId);
 
         return userRepo.deleteUser(userId) >= 1;
     }
@@ -127,7 +130,6 @@ public class UserServiceImpl implements UserServices {
     //delete all accounts of the user if the user is deleted.
     private void deleteAllAccountsForUser(String userId) {
         userExistsOrNot(userId);
-
         restTemplate.delete(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId);
     }
 

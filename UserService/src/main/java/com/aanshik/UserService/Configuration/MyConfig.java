@@ -1,5 +1,7 @@
 package com.aanshik.UserService.Configuration;
 
+import com.aanshik.UserService.Services.ServiceImpl.UserServiceImpl;
+import com.aanshik.UserService.Services.UserServices;
 import org.modelmapper.ModelMapper;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +15,7 @@ public class MyConfig {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+
 
     @Bean
     @LoadBalanced
