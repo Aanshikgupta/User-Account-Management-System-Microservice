@@ -41,6 +41,8 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto createAccount(AccountDto accountDto) {
 
         Account accountToBeSaved = this.modelMapper.map(accountDto, Account.class);
+
+        //generate random accountId
         String accountId = UUID.randomUUID().toString();
         accountToBeSaved.setAccountId(accountId);
 
@@ -49,7 +51,7 @@ public class AccountServiceImpl implements AccountService {
         AccountDto accountDtoSaved = this.modelMapper.map(accountToBeSaved, AccountDto.class);
 
         //get user details
-        UserDto userDto = getUserByAccount(accountId);
+        UserDto userDto = getUserByAccountId(accountId);
         //set user details to this account
         accountDtoSaved.setUserDetails(userDto);
 
@@ -59,26 +61,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Cacheable(value = "account-dto", key = "#accountId")
     public AccountDto getAccountById(String accountId) {
-        Account account = accountRepo.getAccountById(accountId);
-        if (account == null) {
-            throw new ResourceNotFoundException("Account", accountId);
-        }
-        AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
 
-        accountDto.setUserDetails(getUserByAccount(accountId));
+        AccountDto accountDto = getAccountDtoById(accountId);
+        accountDto.setUserDetails(getUserByAccountId(accountId));
+
         return accountDto;
     }
 
     @Cacheable(value = "account-user-dto")
-    public UserDto getUserByAccount(String accountId) {
+    public UserDto getUserByAccountId(String accountId) {
 
-        Account account = accountRepo.getAccountById(accountId);
 
-        if (account == null) {
-            throw new ResourceNotFoundException("Account", accountId);
-        }
+        AccountDto accountDto = getAccountDtoById(accountId);
 
-        AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
 
         try {
             UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL + "/" + accountDto.getUserId(), UserDto.class).getBody();
@@ -86,6 +81,16 @@ public class AccountServiceImpl implements AccountService {
         } catch (HttpClientErrorException exception) {
             throw new ResourceNotFoundException("User", accountDto.getUserId());
         }
+    }
+
+    public AccountDto getAccountDtoById(String accountId) {
+        Account account = accountRepo.getAccountById(accountId);
+        if (account == null) {
+            throw new ResourceNotFoundException("Account", accountId);
+        }
+
+        AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
+        return accountDto;
     }
 
     @Override
@@ -97,15 +102,15 @@ public class AccountServiceImpl implements AccountService {
 
         List<Account> accounts = accountRepo.getAccountByUserId(userId);
         return getAccountDtos(accounts);
+
     }
 
-    //TODO: Handle User not Found in User Service with Appropriate Message
+
     private UserDto userPresentOrNot(String userId) {
         try {
-            UserDto userDto = restTemplate.getForObject("http://USER-SERVICE/users/" + userId, UserDto.class);
+            UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL + "/" + userId, UserDto.class);
             return userDto;
         } catch (HttpClientErrorException exception) {
-            System.out.println(exception);
             throw new ResourceNotFoundException("User", userId);
         }
     }
@@ -121,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
     private List<AccountDto> getAccountDtos(List<Account> accounts) {
 
         List<AccountDto> accountDtoList = accounts.stream().map((account -> {
-            UserDto userDto = getUserByAccount(account.getAccountId());
+            UserDto userDto = getUserByAccountId(account.getAccountId());
             AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
             accountDto.setUserDetails(userDto);
             return accountDto;

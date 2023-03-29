@@ -45,6 +45,4 @@ public interface AccountRepo {
     @Delete("DELETE FROM accounts WHERE user_id=#{userId}")
     public Integer deleteAccountByUserId(String userId);
 
-
-
 }

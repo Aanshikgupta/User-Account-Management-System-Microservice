@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class AccountDto implements Serializable {
     private String accountId;
     private String userId;
-    @Range(min = 0, message = "Balance cannot be negative")
+    @Range(min = 0, max = Long.MAX_VALUE, message = "Invalid Balance Amount!")
     private long balance;
     private UserDto userDetails;
 

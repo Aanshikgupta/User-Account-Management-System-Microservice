@@ -38,19 +38,26 @@ public class UserServiceImpl implements UserServices {
     @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
             @CacheEvict(value = "user-dto", allEntries = true),})
     public UserDto createUser(UserDto userDto) {
+
         User userToBeSaved = this.modelMapper.map(userDto, User.class);
+
+        //generating random userId
         String userId = UUID.randomUUID().toString();
-        //user will have automatic account creation
         userToBeSaved.setUserId(userId);
+
+        //save user to db
         Integer aff = userRepo.createUser(userToBeSaved);
 
+        //if user is successfully inserted
         if (aff >= 1) {
+            //user will have automatic account creation for the first time
             long initBalance = 1000L;
             createAccountForUser(userId, initBalance);
         } else {
             return null;
         }
 
+        //return the dto form of the user created
         return this.modelMapper.map(userToBeSaved, UserDto.class);
     }
 
@@ -58,14 +65,16 @@ public class UserServiceImpl implements UserServices {
     @Override
     @Cacheable(value = "user-dto", key = "#userId")
     public UserDto getUserById(String userId) {
+
         User userRetrieved = userRepo.getUserById(userId);
-        System.out.println("Called");
+
+        //if user not present
         if (userRetrieved == null) {
             throw new ResourceNotFoundException("User", userId);
         }
 
+        //convert to dto
         UserDto userRetrievedDto = this.modelMapper.map(userRetrieved, UserDto.class);
-
 
         return userRetrievedDto;
     }
@@ -74,17 +83,14 @@ public class UserServiceImpl implements UserServices {
     @Override
     @Cacheable(value = "usersList-dto")
     public List<UserDto> getAllUsers() {
-        System.out.println("GEt all users called");
-        try {
-            List<User> usersList = userRepo.getAllUsers();
-            if (usersList == null) {
-                return new ArrayList<UserDto>();
-            }
-            return usersList.stream().map((user) -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
-        } catch (Exception e) {
-            System.out.println(e);
-            return new ArrayList<>();
+
+        List<User> users = userRepo.getAllUsers();
+
+        if (users == null) {
+            return new ArrayList<UserDto>();
         }
+
+        return convertUserListToDtoList(users);
 
     }
 
@@ -93,11 +99,15 @@ public class UserServiceImpl implements UserServices {
     @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),},
             put = {@CachePut(value = "user-dto", key = "#userId")})
     public UserDto updateUser(String userId, UserDto userDto) {
+
         User userPresent = userRepo.getUserById(userId);
         if (userPresent == null) {
             throw new ResourceNotFoundException("User", userId);
         }
+
         User userUpdate = this.modelMapper.map(userDto, User.class);
+
+        //update user
         int aff = userRepo.updateUser(userId, userUpdate);
 
         UserDto updatedDto = this.modelMapper.map(userUpdate, UserDto.class);
@@ -111,13 +121,23 @@ public class UserServiceImpl implements UserServices {
     @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
             @CacheEvict(value = "user-dto", allEntries = true),})
     public boolean deleteUser(String userId) {
-        User userPresent = userRepo.getUserById(userId);
+
+        userExistsOrNot(userId);
 
         //deleting user would delete all his/her accounts
         //currently handled by Foreign Key Relationship
-        deleteAllAccountsForUser(userId);
 
-        return userRepo.deleteUser(userId) >= 1;
+
+        Integer aff = userRepo.deleteUser(userId);
+
+        if (aff >= 1) {
+            deleteAllAccountsForUser(userId);
+            return true;
+        } else {
+            return false;
+        }
+
+
     }
 
 
@@ -129,7 +149,6 @@ public class UserServiceImpl implements UserServices {
 
     //delete all accounts of the user if the user is deleted.
     private void deleteAllAccountsForUser(String userId) {
-        userExistsOrNot(userId);
         restTemplate.delete(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId);
     }
 
@@ -143,7 +162,6 @@ public class UserServiceImpl implements UserServices {
     }
 
 
-    //TODO:HERE
     //create an account for a user when user is created
     private AccountDto createAccountForUser(String userId, long initBalance) {
         try {
@@ -162,6 +180,12 @@ public class UserServiceImpl implements UserServices {
         AccountDto[] accountDtos = restTemplate.getForObject(Constants.ACCOUNT_SERVICE_BASE_URL + "/users/" + userId, AccountDto[].class);
         List<AccountDto> accounts = Arrays.asList(accountDtos);
         return accounts;
+    }
+
+    public List<UserDto> convertUserListToDtoList(List<User> users) {
+        return users.stream()
+                .map((user) -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
     }
 
 
