@@ -10,10 +10,9 @@ The User Account Management System is a microservices-based software application
 - Update account information using Account microservice
 - Delete user accounts using User microservice
 - Delete account information using Account microservice
-- Manage user authentication and access control
-- User-friendly web interface for easy management
-- Secure password storage and retrieval
-- Audit logs to track user activity
+- Automatic Account Creation on User Creation
+- Account Creation from User API Itself
+- One User can have many accounts
 
 ## Technologies Used
 
@@ -22,32 +21,19 @@ The User Account Management System is a microservices-based software application
 - Database: MySQL
 - ORM Framework: Mybatis
 - Caching: Redis
-- API Gateway: Netflix Zuul
+- API Gateway: Spring Cloud Gateway
 - Service Registry: Netflix Eureka
 - Configuration Server: Spring Cloud Config
+- Other tools: Postman
 
 ## Microservices Architecture
 
 The User Account Management System is built using microservices architecture. It comprises two microservices - User and Account - which communicate with each other using RestTemplate.
 
 - **User Microservice**: Provides functionalities for creating, updating, and deleting user accounts, creating account for a user with automatic account creation on user creation.
-- **Account Microservice**: Provides functionalities for creating, updating, and deleting account information.
+- **Account Microservice**: Provides functionalities for creating, updating,deleting account information and withdraw and desposit balance.
 
-## Setup Instructions
 
-1. Clone the repository `git clone https://github.com/yourusername/user-account-management.git`
-2. Change directory into the project folder `cd user-account-management`
-3. Start the Configuration Server `cd config-server && mvn spring-boot:run`
-4. Start the Eureka Server `cd service-registry && mvn spring-boot:run`
-5. Start the API Gateway `cd api-gateway && mvn spring-boot:run`
-6. Start the User Microservice `cd user-microservice && mvn spring-boot:run`
-7. Start the Account Microservice `cd account-microservice && mvn spring-boot:run`
-8. Access the application in your browser at `http://localhost:8765/`
+## Conclusion
 
-## Contributing
-
-Contributions to the User Account Management System are welcome. Before contributing, please read the [contributing guide](CONTRIBUTING.md) for more information.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is a part of my end-training project given by my manager. I have applied most of the concepts that I learnt throught-out my training.
