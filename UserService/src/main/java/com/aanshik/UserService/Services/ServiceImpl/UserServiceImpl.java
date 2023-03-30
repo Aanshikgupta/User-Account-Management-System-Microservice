@@ -96,7 +96,11 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),},
+    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+            @CacheEvict(value = "account-dto", allEntries = true),
+            @CacheEvict(value = "accountsList-dto", allEntries = true),
+            @CacheEvict(value = "account-user-dto", allEntries = true),
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),},
             put = {@CachePut(value = "user-dto", key = "#userId")})
     public UserDto updateUser(String userId, UserDto userDto) {
 
@@ -119,6 +123,10 @@ public class UserServiceImpl implements UserServices {
 
     @Override
     @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+            @CacheEvict(value = "account-dto", allEntries = true),
+            @CacheEvict(value = "accountsList-dto", allEntries = true),
+            @CacheEvict(value = "account-user-dto", allEntries = true),
+            @CacheEvict(value = "account-user-list-dto", allEntries = true),
             @CacheEvict(value = "user-dto", allEntries = true),})
     public boolean deleteUser(String userId) {
 
@@ -131,7 +139,6 @@ public class UserServiceImpl implements UserServices {
         Integer aff = userRepo.deleteUser(userId);
 
         if (aff >= 1) {
-            deleteAllAccountsForUser(userId);
             return true;
         } else {
             return false;
