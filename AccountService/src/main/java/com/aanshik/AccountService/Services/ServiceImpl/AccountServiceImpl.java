@@ -201,7 +201,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-
     @Override
     @Caching(evict = {@CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
