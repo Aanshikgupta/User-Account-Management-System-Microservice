@@ -17,7 +17,7 @@ public class AccountController {
     @Autowired
     AccountService accountService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<AccountDto> createAccount(@RequestBody @Valid AccountDto accountDto) {
         return new ResponseEntity<>(accountService.createAccount(accountDto), HttpStatus.CREATED);
     }
@@ -27,7 +27,7 @@ public class AccountController {
         return new ResponseEntity<>(accountService.getAccountById(accountId), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<AccountDto>> getAllAccounts() {
         return new ResponseEntity<>(accountService.getAllAccounts(), HttpStatus.OK);
     }

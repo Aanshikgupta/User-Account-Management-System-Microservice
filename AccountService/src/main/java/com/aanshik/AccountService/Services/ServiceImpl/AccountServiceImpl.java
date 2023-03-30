@@ -75,10 +75,8 @@ public class AccountServiceImpl implements AccountService {
 
         AccountDto accountDto = getAccountDtoById(accountId);
 
-
         UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL_WITH_SLASH + accountDto.getUserId(), UserDto.class).getBody();
         return userDto;
-
 
     }
 
@@ -110,12 +108,8 @@ public class AccountServiceImpl implements AccountService {
     //TODO:RESET HERE
     private UserDto userPresentOrNot(String userId) {
 
-//        try {
-        UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL_WITH_SLASH+ userId, UserDto.class);
+        UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL_WITH_SLASH + userId, UserDto.class);
         return userDto;
-//        } catch (HttpClientErrorException exception) {
-//            throw new ResourceNotFoundException("User", userId);
-//        }
 
     }
 
@@ -151,7 +145,6 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountPresentOrNot(accountId);
 
-
         Account dto = this.modelMapper.map(accountDto, Account.class);
         account.setBalance(dto.getBalance());
         int aff = accountRepo.updateAccount(accountId, account);
@@ -166,18 +159,22 @@ public class AccountServiceImpl implements AccountService {
             @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),
             @CacheEvict(value = Constants.ACCOUNT_DTO, allEntries = true),})
     public Boolean deleteAccountByAccountId(String accountId) {
+
         //extra check
         accountPresentOrNot(accountId);
         return accountRepo.deleteAccountByAccountId(accountId) >= 1;
+
     }
 
 
     public Account accountPresentOrNot(String accountId) {
+
         Account account = accountRepo.getAccountById(accountId);
         if (account == null) {
             throw new ResourceNotFoundException(Constants.ACCOUNT, accountId);
         }
         return account;
+
     }
 
 
@@ -186,19 +183,22 @@ public class AccountServiceImpl implements AccountService {
             @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),
             @CacheEvict(value = Constants.ACCOUNT_DTO, allEntries = true),})
     public Boolean deleteAccountByUserId(String userId) {
+
         Integer delOrNot = accountRepo.deleteAccountByUserId(userId);
         if (delOrNot == 0) {
             throw new ResourceNotFoundException(Constants.USER, userId);
         }
         return true;
+
     }
 
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value =Constants.ACCOUNT_USER_DTO, allEntries = true),},
+            @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),},
             put = {@CachePut(value = Constants.ACCOUNT_DTO, key = "#accountId")})
     public AccountDto depositBalance(String accountId, long balance) {
+
         AccountDto accountDto = getAccountById(accountId);
         long oldBalance = accountDto.getBalance();
         long newBalance = oldBalance + balance;
@@ -206,6 +206,7 @@ public class AccountServiceImpl implements AccountService {
         accountDto.setBalance(newBalance);
 
         return updateAccount(accountId, accountDto);
+
     }
 
 
@@ -227,6 +228,7 @@ public class AccountServiceImpl implements AccountService {
         accountDto.setBalance(newBalance);
 
         return updateAccount(accountId, accountDto);
+
     }
 
 

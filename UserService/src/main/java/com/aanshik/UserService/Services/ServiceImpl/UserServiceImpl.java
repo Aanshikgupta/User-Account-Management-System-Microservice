@@ -58,6 +58,7 @@ public class UserServiceImpl implements UserServices {
 
         //return the dto form of the user created
         return this.modelMapper.map(userToBeSaved, UserDto.class);
+
     }
 
 
@@ -76,6 +77,7 @@ public class UserServiceImpl implements UserServices {
         UserDto userRetrievedDto = this.modelMapper.map(userRetrieved, UserDto.class);
 
         return userRetrievedDto;
+
     }
 
 
@@ -112,6 +114,7 @@ public class UserServiceImpl implements UserServices {
         updatedDto.setUserId(userId);
 
         return updatedDto;
+
     }
 
 
@@ -133,56 +136,69 @@ public class UserServiceImpl implements UserServices {
             return false;
         }
 
-
     }
 
 
     @Override
     public AccountDto createAccount(String userId, AccountDto accountDto) {
+
         userExistsOrNot(userId);
         return createAccountForUser(userId, accountDto.getBalance());
+
     }
 
 
     //delete all accounts of the user if the user is deleted.
     private void deleteAllAccountsForUser(String userId) {
+
         restTemplate.delete(Constants.ACCOUNT_SERVICE_BASE_URL_WITH_SLASH_USERS_SLASH + userId);
+
     }
 
 
     //safe check for user presence
     private void userExistsOrNot(String userId) {
+
         UserDto userDto = getUserById(userId);
         if (userDto == null) {
             throw new ResourceNotFoundException(Constants.USER, userId);
         }
+
     }
 
 
     //create an account for a user when user is created
     private AccountDto createAccountForUser(String userId, long initBalance) {
+
         try {
             AccountDto accountDto = new AccountDto(userId, initBalance);
             accountDto = restTemplate.postForEntity(Constants.ACCOUNT_SERVICE_BASE_URL, accountDto, AccountDto.class).getBody();
             return accountDto;
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             deleteUser(userId);
             throw new IllegalStateException();
         }
+
     }
 
 
     //return all the accounts by userId
     public List<AccountDto> getAllAccounts(String userId) {
+
         userExistsOrNot(userId);
         AccountDto[] accountDtos = restTemplate.getForObject(Constants.ACCOUNT_SERVICE_BASE_URL_WITH_SLASH_USERS_SLASH + userId, AccountDto[].class);
         List<AccountDto> accounts = Arrays.asList(accountDtos);
         return accounts;
+
     }
 
 
     public List<UserDto> convertUserListToDtoList(List<User> users) {
-        return users.stream().map((user) -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
+
+        return users.stream()
+                .map((user) -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
+
     }
 
 

@@ -19,7 +19,7 @@ public class UserController {
     @Autowired
     UserServices userService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<UserDto> createUser(@RequestBody @Valid UserDto userDto) {
         return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
     }
@@ -34,7 +34,7 @@ public class UserController {
         return new ResponseEntity<>(userService.getUserById(userId), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }

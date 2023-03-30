@@ -55,10 +55,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
             String error = ex.getMessage();
 
-            String exMessage = error.substring(ex.getMessage().indexOf(':') + 1);
-
-
-            exMessage = exMessage.trim();
+            String exMessage = error.substring(ex.getMessage().indexOf(':') + 1).trim();
 
             exMessage = exMessage.substring(1, exMessage.length() - 1);
 

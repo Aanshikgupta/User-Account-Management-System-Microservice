@@ -73,28 +73,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (ex.getStatusCode().is4xxClientError()) {
 
-            String error = ex.getMessage();
-
-            String exMessage = error.substring(ex.getMessage().indexOf(':') + 1);
-
-
-            exMessage = exMessage.trim();
-
+            //Logic to filter message
+            String error=ex.getMessage();
+            String exMessage = error.substring(ex.getMessage().indexOf(':') + 1).trim();
             exMessage = exMessage.substring(1, exMessage.length() - 1);
 
 
             ApiError apiError =
                     new ApiError(HttpStatus.BAD_REQUEST, exMessage, exMessage);
+
             return new ResponseEntity<Object>(
                     apiError, apiError.getStatus());
 
 
         } else if (ex.getStatusCode().is5xxServerError()) {
 
-            String s = Constants.SERVER_DOWN_MESSAGE;
+            String message = Constants.SERVER_DOWN_MESSAGE;
 
             ApiError apiError =
-                    new ApiError(HttpStatus.BAD_REQUEST, s, s);
+                    new ApiError(HttpStatus.BAD_REQUEST, message, message);
+
             return new ResponseEntity<Object>(
                     apiError, apiError.getStatus());
 
@@ -102,7 +100,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
         return null;
-
 
     }
 
