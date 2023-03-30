@@ -8,6 +8,7 @@ import com.aanshik.AccountService.Payloads.UserDto;
 import com.aanshik.AccountService.Respositories.AccountRepo;
 import com.aanshik.AccountService.Services.AccountService;
 import com.aanshik.AccountService.Utils.Constants;
+import org.apache.tomcat.util.bcel.Const;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,8 +36,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-dto", allEntries = true),})
+            @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),
+            @CacheEvict(value = Constants.ACCOUNT_DTO, allEntries = true),})
     public AccountDto createAccount(AccountDto accountDto) {
 
         Account accountToBeSaved = this.modelMapper.map(accountDto, Account.class);
@@ -59,7 +60,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    @Cacheable(value = "account-dto", key = "#accountId")
+    @Cacheable(value = Constants.ACCOUNT_DTO, key = "#accountId")
     public AccountDto getAccountById(String accountId) {
 
         AccountDto accountDto = getAccountDtoById(accountId);
@@ -69,13 +70,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    @Cacheable(value = "account-user-dto")
+    @Cacheable(value = Constants.ACCOUNT_USER_DTO)
     public UserDto getUserByAccountId(String accountId) {
 
         AccountDto accountDto = getAccountDtoById(accountId);
 
 
-        UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL + "/" + accountDto.getUserId(), UserDto.class).getBody();
+        UserDto userDto = restTemplate.getForEntity(Constants.USER_SERVICE_BASE_URL_WITH_SLASH + accountDto.getUserId(), UserDto.class).getBody();
         return userDto;
 
 
@@ -86,7 +87,7 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountRepo.getAccountById(accountId);
         if (account == null) {
-            throw new ResourceNotFoundException("Account", accountId);
+            throw new ResourceNotFoundException(Constants.ACCOUNT, accountId);
         }
 
         AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
@@ -110,7 +111,7 @@ public class AccountServiceImpl implements AccountService {
     private UserDto userPresentOrNot(String userId) {
 
 //        try {
-        UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL + "/" + userId, UserDto.class);
+        UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL_WITH_SLASH+ userId, UserDto.class);
         return userDto;
 //        } catch (HttpClientErrorException exception) {
 //            throw new ResourceNotFoundException("User", userId);
@@ -144,8 +145,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "account-user-dto", allEntries = true),},
-            put = {@CachePut(value = "account-dto", key = "#accountId")})
+            @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),},
+            put = {@CachePut(value = Constants.ACCOUNT_DTO, key = "#accountId")})
     public AccountDto updateAccount(String accountId, AccountDto accountDto) {
 
         Account account = accountPresentOrNot(accountId);
@@ -162,8 +163,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-dto", allEntries = true),})
+            @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),
+            @CacheEvict(value = Constants.ACCOUNT_DTO, allEntries = true),})
     public Boolean deleteAccountByAccountId(String accountId) {
         //extra check
         accountPresentOrNot(accountId);
@@ -174,7 +175,7 @@ public class AccountServiceImpl implements AccountService {
     public Account accountPresentOrNot(String accountId) {
         Account account = accountRepo.getAccountById(accountId);
         if (account == null) {
-            throw new ResourceNotFoundException("Account", accountId);
+            throw new ResourceNotFoundException(Constants.ACCOUNT, accountId);
         }
         return account;
     }
@@ -182,12 +183,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-dto", allEntries = true),})
+            @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),
+            @CacheEvict(value = Constants.ACCOUNT_DTO, allEntries = true),})
     public Boolean deleteAccountByUserId(String userId) {
         Integer delOrNot = accountRepo.deleteAccountByUserId(userId);
         if (delOrNot == 0) {
-            throw new ResourceNotFoundException("User", userId);
+            throw new ResourceNotFoundException(Constants.USER, userId);
         }
         return true;
     }
@@ -195,8 +196,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "account-user-dto", allEntries = true),},
-            put = {@CachePut(value = "account-dto", key = "#accountId")})
+            @CacheEvict(value =Constants.ACCOUNT_USER_DTO, allEntries = true),},
+            put = {@CachePut(value = Constants.ACCOUNT_DTO, key = "#accountId")})
     public AccountDto depositBalance(String accountId, long balance) {
         AccountDto accountDto = getAccountById(accountId);
         long oldBalance = accountDto.getBalance();
@@ -210,8 +211,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "account-user-dto", allEntries = true),},
-            put = {@CachePut(value = "account-dto", key = "#accountId")})
+            @CacheEvict(value = Constants.ACCOUNT_USER_DTO, allEntries = true),},
+            put = {@CachePut(value = Constants.ACCOUNT_DTO, key = "#accountId")})
     public AccountDto withdrawBalance(String accountId, long balance) {
 
         AccountDto accountDto = getAccountById(accountId);

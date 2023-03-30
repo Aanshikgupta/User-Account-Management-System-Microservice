@@ -1,5 +1,6 @@
 package com.aanshik.AccountService.ExceptionHandling;
 
+import com.aanshik.AccountService.Utils.Constants;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         } else if (ex.getStatusCode().is5xxServerError()) {
 
-            String s = "Server is down, Please try again later!!";
+            String s = Constants.SERVER_DOWN_MESSAGE;
 
             ApiError apiError =
                     new ApiError(HttpStatus.BAD_REQUEST, s, s);
@@ -102,6 +103,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return null;
 
+
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
+
+        String s = ex.getMessage()+Constants.SERVER_DOWN_MESSAGE;
+
+        ApiError apiError =
+                new ApiError(HttpStatus.BAD_REQUEST, s, s);
+        return new ResponseEntity<Object>(
+                apiError, apiError.getStatus());
 
     }
 

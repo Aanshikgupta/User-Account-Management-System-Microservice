@@ -1,5 +1,6 @@
 package com.aanshik.UserService.ExceptionHandling;
 
+import com.aanshik.UserService.Utils.Constants;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -26,14 +27,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(
                 apiError, apiError.getStatus());
     }
-
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<Object> handleExceptions(MethodArgumentNotValidException ex) {
-//        ApiError apiError =
-//                new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), ex.getMessage());
-//        return new ResponseEntity<Object>(
-//                apiError, apiError.getStatus());
-//    }
 
 
     @Override
@@ -78,7 +71,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         } else if (ex.getStatusCode().is5xxServerError()) {
 
-            String s = "Server is down, Please try again later!!";
+            String s = Constants.SERVER_DOWN_MESSAGE;
 
             ApiError apiError =
                     new ApiError(HttpStatus.BAD_REQUEST, s, s);
@@ -90,6 +83,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return null;
 
+
+    }
+
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
+
+        String s = Constants.SERVER_DOWN_MESSAGE;
+
+        ApiError apiError =
+                new ApiError(HttpStatus.BAD_REQUEST, s, s);
+        return new ResponseEntity<Object>(
+                apiError, apiError.getStatus());
 
     }
 
