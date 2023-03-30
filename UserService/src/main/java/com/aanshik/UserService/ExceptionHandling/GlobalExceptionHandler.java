@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -51,6 +52,45 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorMap.put("Errors", exceptionalErrors);
 
         return new ResponseEntity<>(errorMap, httpStatus);
+    }
+
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<Object> handleHttpClientErrorException(HttpClientErrorException ex) {
+
+        if (ex.getStatusCode().is4xxClientError()) {
+
+            String error = ex.getMessage();
+
+            String exMessage = error.substring(ex.getMessage().indexOf(':') + 1);
+
+
+            exMessage = exMessage.trim();
+
+            exMessage = exMessage.substring(1, exMessage.length() - 1);
+
+
+            ApiError apiError =
+                    new ApiError(HttpStatus.BAD_REQUEST, exMessage, exMessage);
+            return new ResponseEntity<Object>(
+                    apiError, apiError.getStatus());
+
+
+        } else if (ex.getStatusCode().is5xxServerError()) {
+
+            String s = "Server is down, Please try again later!!";
+
+            ApiError apiError =
+                    new ApiError(HttpStatus.BAD_REQUEST, s, s);
+            return new ResponseEntity<Object>(
+                    apiError, apiError.getStatus());
+
+        }
+
+
+        return null;
+
+
     }
 
 

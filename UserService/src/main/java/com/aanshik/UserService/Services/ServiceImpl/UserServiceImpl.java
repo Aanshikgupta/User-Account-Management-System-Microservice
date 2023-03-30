@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+    @Caching(evict = {
             @CacheEvict(value = "user-dto", allEntries = true),})
     public UserDto createUser(UserDto userDto) {
 
@@ -80,8 +80,8 @@ public class UserServiceImpl implements UserServices {
     }
 
 
+    //TODO:Not required in redis
     @Override
-    @Cacheable(value = "usersList-dto")
     public List<UserDto> getAllUsers() {
 
         List<User> users = userRepo.getAllUsers();
@@ -96,11 +96,9 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+    @Caching(evict = {
             @CacheEvict(value = "account-dto", allEntries = true),
-            @CacheEvict(value = "accountsList-dto", allEntries = true),
-            @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-user-list-dto", allEntries = true),},
+            @CacheEvict(value = "account-user-dto", allEntries = true),},
             put = {@CachePut(value = "user-dto", key = "#userId")})
     public UserDto updateUser(String userId, UserDto userDto) {
 
@@ -122,11 +120,9 @@ public class UserServiceImpl implements UserServices {
 
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "usersList-dto", allEntries = true),
+    @Caching(evict = {
             @CacheEvict(value = "account-dto", allEntries = true),
-            @CacheEvict(value = "accountsList-dto", allEntries = true),
             @CacheEvict(value = "account-user-dto", allEntries = true),
-            @CacheEvict(value = "account-user-list-dto", allEntries = true),
             @CacheEvict(value = "user-dto", allEntries = true),})
     public boolean deleteUser(String userId) {
 
@@ -150,6 +146,7 @@ public class UserServiceImpl implements UserServices {
 
     @Override
     public AccountDto createAccount(String userId, AccountDto accountDto) {
+        userExistsOrNot(userId);
         return createAccountForUser(userId, accountDto.getBalance());
     }
 
@@ -171,13 +168,14 @@ public class UserServiceImpl implements UserServices {
 
     //create an account for a user when user is created
     private AccountDto createAccountForUser(String userId, long initBalance) {
-        try {
-            AccountDto accountDto = new AccountDto(userId, initBalance);
-            accountDto = restTemplate.postForEntity(Constants.ACCOUNT_SERVICE_BASE_URL, accountDto, AccountDto.class).getBody();
-            return accountDto;
-        } catch (HttpClientErrorException exception) {
-            throw new ResourceNotFoundException("User", userId);
-        }
+        // TOOD:RESET HERE
+//        try {
+        AccountDto accountDto = new AccountDto(userId, initBalance);
+        accountDto = restTemplate.postForEntity(Constants.ACCOUNT_SERVICE_BASE_URL, accountDto, AccountDto.class).getBody();
+        return accountDto;
+//        } catch (HttpClientErrorException exception) {
+//            throw new ResourceNotFoundException("User", userId);
+//        }
     }
 
 

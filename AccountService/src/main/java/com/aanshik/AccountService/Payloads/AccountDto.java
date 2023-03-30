@@ -23,4 +23,9 @@ public class AccountDto implements Serializable {
     private long balance;
     private UserDto userDetails;
 
+    public AccountDto(String accountId, String userId, long balance) {
+        this.accountId = accountId;
+        this.userId = userId;
+        this.balance = balance;
+    }
 }

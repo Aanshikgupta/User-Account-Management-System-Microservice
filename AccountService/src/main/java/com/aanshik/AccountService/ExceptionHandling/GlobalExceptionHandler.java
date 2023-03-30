@@ -1,5 +1,7 @@
 package com.aanshik.AccountService.ExceptionHandling;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -7,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -62,6 +65,44 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), ex.getMessage());
         return new ResponseEntity<Object>(
                 apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<Object> handleHttpClientErrorException(HttpClientErrorException ex) throws JSONException {
+
+        if (ex.getStatusCode().is4xxClientError()) {
+
+            String error = ex.getMessage();
+
+            String exMessage = error.substring(ex.getMessage().indexOf(':') + 1);
+
+
+            exMessage = exMessage.trim();
+
+            exMessage = exMessage.substring(1, exMessage.length() - 1);
+
+
+            ApiError apiError =
+                    new ApiError(HttpStatus.BAD_REQUEST, exMessage, exMessage);
+            return new ResponseEntity<Object>(
+                    apiError, apiError.getStatus());
+
+
+        } else if (ex.getStatusCode().is5xxServerError()) {
+
+            String s = "Server is down, Please try again later!!";
+
+            ApiError apiError =
+                    new ApiError(HttpStatus.BAD_REQUEST, s, s);
+            return new ResponseEntity<Object>(
+                    apiError, apiError.getStatus());
+
+        }
+
+
+        return null;
+
+
     }
 
 
