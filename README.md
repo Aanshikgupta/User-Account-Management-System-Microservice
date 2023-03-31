@@ -83,6 +83,11 @@ The User Account Management System is built using microservices architecture. It
 
 - **User Microservice**: Provides functionalities for creating, updating, and deleting user accounts, creating account for a user with automatic account creation on user creation.
 - **Account Microservice**: Provides functionalities for creating, updating,deleting account information and withdraw and desposit balance.
+- **API Gateway Microservice**: Provides functionalities for calling all microservices on the same url & port number.
+- **Service Registry Microservice**: Provides functionalities inter-communication between microservices using the name not by port & url. This removes dependency of url and port so that we can change that as per our requirement without affecting the existing system.
+- **Config Server Microservice**: Provides functionalities for retrieving common configuration from a git file.
+
+
 
 
 ## Conclusion
