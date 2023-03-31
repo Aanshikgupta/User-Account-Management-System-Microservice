@@ -57,7 +57,7 @@ The `accounts` table stores information about registered users.
 | Column Name | Data Type | Constraints |
 | ----------- | --------- | ----------- |
 | account_id | VARCHAR(36) | NOT NULL, UNIQUE |
-| user_id | VARCHAR(50) |NOT NULL |
+| user_id | VARCHAR(36) |NOT NULL |
 | balance | LONG | |
 
 - `user_id`: Unique identifier for each user.
