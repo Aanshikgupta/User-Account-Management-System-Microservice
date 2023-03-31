@@ -29,6 +29,7 @@ class UserTest {
         assertEquals(userName, user.getUserName());
     }
 
+
     @Test
     void getUserMobile() {
         String userMobile = "9026758004";
