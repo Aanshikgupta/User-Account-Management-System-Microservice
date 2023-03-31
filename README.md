@@ -24,7 +24,58 @@ The User Account Management System is a microservices-based software application
 - API Gateway: Spring Cloud Gateway
 - Service Registry: Netflix Eureka
 - Configuration Server: Spring Cloud Config
+- API Inter-Communication: RestTemplate
 - Other tools: Postman
+
+## Setup Instructions
+1. Clone the repository to your local machine:
+git clone https://https://github.com/Aanshikgupta/User-Account-Management-System-Microservice.git
+2. Create the 'users' table in the 'pet-project-user-service' database with the following SQL query:
+## Users Table
+
+The `users` table stores information about registered users.
+
+| Column Name | Data Type | Constraints |
+| ----------- | --------- | ----------- |
+| user_id | VARCHAR(36) | NOT NULL, UNIQUE |
+| user_name | VARCHAR(50) | |
+| user_mobile | VARCHAR(10) | |
+| user_dob | DATE | |
+
+- `user_id`: Unique identifier for each user.
+- `user_name`: Name of the user.
+- `user_mobile`: Mobile number of the user.
+- `user_dob`: Date of birth of the user.
+- `user_id` : Primary Key
+
+3. Create the 'accounts' table in the 'pet-project-account-service' database with the following SQL query:
+
+## Accounts Table
+
+The `accounts` table stores information about registered users.
+
+| Column Name | Data Type | Constraints |
+| ----------- | --------- | ----------- |
+| account_id | VARCHAR(36) | NOT NULL, UNIQUE |
+| user_id | VARCHAR(36) |NOT NULL |
+| balance | LONG | |
+
+- `user_id`: Unique identifier for each user.
+- `account_id`: Unique identifier for each account.
+- `balance`: Balance in the account.
+- `account_id` : Primary Key
+
+
+4. Run the Redis server on localhost:6379.
+
+5. You can access the User Service on localhost:8080.
+
+6. You can access the Account Service on localhost:8081.
+
+7. API Gateway helps to access all the services on localhost:8082.
+
+8. Access the application in your browser.
+
 
 ## Microservices Architecture
 
@@ -36,4 +87,4 @@ The User Account Management System is built using microservices architecture. It
 
 ## Conclusion
 
-This project is a part of my end-training project given by my manager. I have applied most of the concepts that I learnt throught-out my training.
+This project is a part of my end-training project given by my manager(Ms. Heena kalra - IMS Team). I have applied most of the concepts that I learnt throught-out my training. Unit testing of this project is yet to be done.
