@@ -24,6 +24,7 @@ The User Account Management System is a microservices-based software application
 - API Gateway: Spring Cloud Gateway
 - Service Registry: Netflix Eureka
 - Configuration Server: Spring Cloud Config
+- API Inter-Communication: RestTemplate
 - Other tools: Postman
 
 ## Setup Instructions
