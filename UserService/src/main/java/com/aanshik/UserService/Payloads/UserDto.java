@@ -24,4 +24,9 @@ public class UserDto implements Serializable {
     private String userMobile;
     private Date userDob;
 
+    public UserDto(String userName, String userMobile, Date userDob) {
+        this.userName = userName;
+        this.userMobile = userMobile;
+        this.userDob = userDob;
+    }
 }

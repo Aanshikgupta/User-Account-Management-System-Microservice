@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserServices {
     @Caching(evict = {@CacheEvict(value = Constants.USER_DTO, allEntries = true),})
     public UserDto createUser(UserDto userDto) {
 
-        User userToBeSaved = this.modelMapper.map(userDto, User.class);
+        User userToBeSaved = modelMapper.map(userDto, User.class);
 
         //generating random userId
         String userId = UUID.randomUUID().toString();
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserServices {
         }
 
         //return the dto form of the user created
-        return this.modelMapper.map(userToBeSaved, UserDto.class);
+        return modelMapper.map(userToBeSaved, UserDto.class);
 
     }
 
@@ -74,14 +74,14 @@ public class UserServiceImpl implements UserServices {
         }
 
         //convert to dto
-        UserDto userRetrievedDto = this.modelMapper.map(userRetrieved, UserDto.class);
+        UserDto userRetrievedDto = modelMapper.map(userRetrieved, UserDto.class);
 
         return userRetrievedDto;
 
     }
 
 
-    //TODO:Not required in redis
+
     @Override
     public List<UserDto> getAllUsers() {
 
@@ -105,12 +105,12 @@ public class UserServiceImpl implements UserServices {
             throw new ResourceNotFoundException(Constants.USER, userId);
         }
 
-        User userUpdate = this.modelMapper.map(userDto, User.class);
+        User userUpdate = modelMapper.map(userDto, User.class);
 
         //update user
         int aff = userRepo.updateUser(userId, userUpdate);
 
-        UserDto updatedDto = this.modelMapper.map(userUpdate, UserDto.class);
+        UserDto updatedDto = modelMapper.map(userUpdate, UserDto.class);
         updatedDto.setUserId(userId);
 
         return updatedDto;

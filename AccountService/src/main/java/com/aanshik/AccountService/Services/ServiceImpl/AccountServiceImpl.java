@@ -105,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    //TODO:RESET HERE
+
     private UserDto userPresentOrNot(String userId) {
 
         UserDto userDto = restTemplate.getForObject(Constants.USER_SERVICE_BASE_URL_WITH_SLASH + userId, UserDto.class);
