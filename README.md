@@ -86,4 +86,4 @@ The User Account Management System is built using microservices architecture. It
 
 ## Conclusion
 
-This project is a part of my end-training project given by my manager(Ms. Heena kalra - IMS Team). I have applied most of the concepts that I learnt throught-out my training.
+This project is a part of my end-training project given by my manager(Ms. Heena kalra - IMS Team). I have applied most of the concepts that I learnt throught-out my training. Unit testing of this project is yet to be done.
