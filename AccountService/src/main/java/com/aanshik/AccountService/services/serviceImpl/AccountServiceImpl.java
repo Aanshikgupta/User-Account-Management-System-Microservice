@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+
     @Autowired
     AccountRepo accountRepo;
 
@@ -31,6 +32,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     RestTemplate restTemplate;
+
+    public AccountServiceImpl(ModelMapper modelMapper) {
+        this.modelMapper=modelMapper;
+    }
 
     @Override
     @Caching(evict = {
@@ -125,7 +130,7 @@ public class AccountServiceImpl implements AccountService {
 
         List<AccountDto> accountDtoList = accounts.stream().map((account -> {
             UserDto userDto = getUserByAccountId(account.getAccountId());
-            AccountDto accountDto = this.modelMapper.map(account, AccountDto.class);
+            AccountDto accountDto = modelMapper.map(account, AccountDto.class);
             accountDto.setUserDetails(userDto);
             return accountDto;
         })).collect(Collectors.toList());

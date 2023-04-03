@@ -7,6 +7,8 @@ import com.aanshik.UserService.payloads.UserDto;
 import com.aanshik.UserService.respositories.UserRepo;
 import com.aanshik.UserService.services.UserServices;
 import com.aanshik.UserService.utils.Constants;
+import lombok.Getter;
+import lombok.Setter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,7 +22,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Getter
+@Setter
 public class UserServiceImpl implements UserServices {
+
 
     @Autowired
     UserRepo userRepo;
@@ -32,6 +37,10 @@ public class UserServiceImpl implements UserServices {
     @Autowired
     RestTemplate restTemplate;
 
+
+    public UserServiceImpl(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     @Caching(evict = {@CacheEvict(value = Constants.USER_DTO, allEntries = true),})
@@ -78,7 +87,6 @@ public class UserServiceImpl implements UserServices {
         return userRetrievedDto;
 
     }
-
 
 
     @Override

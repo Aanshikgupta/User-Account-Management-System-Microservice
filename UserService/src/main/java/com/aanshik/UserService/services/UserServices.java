@@ -2,8 +2,10 @@ package com.aanshik.UserService.services;
 
 import com.aanshik.UserService.payloads.AccountDto;
 import com.aanshik.UserService.payloads.UserDto;
+import lombok.Getter;
 
 import java.util.List;
+
 
 public interface UserServices {
 
