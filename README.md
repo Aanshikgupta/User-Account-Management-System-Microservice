@@ -4,8 +4,8 @@ The User Account Management System is a microservices-based software application
 
 ## Features
 
-- Create and manage user accounts using User microservice
-- Create and manage user accounts using Account microservice
+- Create and manage user using User microservice
+- Create and manage account using Account microservice
 - Update user profile information using User microservice
 - Update account information using Account microservice
 - Delete user accounts using User microservice
